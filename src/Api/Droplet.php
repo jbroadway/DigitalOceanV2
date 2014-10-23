@@ -58,11 +58,12 @@ class Droplet extends AbstractApi
      * @param  boolean           $ipv6              (optional)
      * @param  boolean           $privateNetworking (optional)
      * @param  integer[]         $sshKeys           (optional)
+     * @param  array             $userData          (optional)
      * @throws \RuntimeException
      * @return DropletEntity
      */
     public function create($name, $region, $size, $image, $backups = false, $ipv6 = false,
-        $privateNetworking = false, array $sshKeys = array()
+        $privateNetworking = false, array $sshKeys = array(), $userData = false
     ) {
         $headers = array('Content-Type: application/json');
 
@@ -75,11 +76,12 @@ class Droplet extends AbstractApi
         $image = is_int($image) ? $image : sprintf('"%s"', $image);
 
         $content = sprintf(
-            '{"name":"%s","region":"%s","size":"%s","image":%s,"backups":%s,"ipv6":%s,"private_networking":%s%s}',
+            '{"name":"%s","region":"%s","size":"%s","image":%s,"backups":%s,"ipv6":%s,"private_networking":%s%s%s}',
             $name, $region, $size, $image,
             \DigitalOceanV2\bool_to_string($backups),
             \DigitalOceanV2\bool_to_string($ipv6),
-            \DigitalOceanV2\bool_to_string($privateNetworking), $sshIds
+            \DigitalOceanV2\bool_to_string($privateNetworking), $sshIds,
+            json_encode (array ('user_data' => $userData))
         );
 
         $droplet = $this->adapter->post(sprintf('%s/droplets', self::ENDPOINT), $headers, $content);
